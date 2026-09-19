@@ -12,9 +12,12 @@ record. In the window 2025-09 .. 2026-08 that container carries a numeric CVSS b
 (CVE-2026-32187) has no CISA-ADP container at all.
 
 **Consequence.** The required table is a two-point series (2026-01: 5.1, 2026-04: 9.8), not a
-twelve-point one. It cannot be merged into the published Chrome/Firefox/Apple/Linux panel as a
-CVSS-weighted series, and its "mean base score" is a mean of one or two records wherever it is
-defined at all. This is a property of the CISA-ADP container, not of the records: the CNA container
+twelve-point one. What **can** be merged into the published Chrome/Firefox/Apple/Linux panel is the
+column this listing also requires and which is complete for every one of the twelve months: **n per
+month** (94, 180, 71, 65, 125, 61, 97, 181, 161, 219, 648, 471), together with the coverage finding
+itself — that the container the protocol names scores 2 of 2,373 records while the CNA container
+scores 2,372 of the same 2,373. The CVSS-weighted column is the part that cannot be merged, and its
+"mean base score" is a mean of one or two records wherever it is defined at all. This is a property of the CISA-ADP container, not of the records: the CNA container
 carries a CVSS v3.1 base score in 2,372 of the same 2,373 records. That score is the vendor's own
 and the listing forbids substituting it, so it is reported separately as a labelled diagnostic and
 is **not** the table above it.
@@ -58,3 +61,12 @@ these numbers even though the month buckets stay fixed. Separately, 1 of the 2,3
 CISA-ADP container. It is **included** because the listing's predicate ("CVE records assigned by the
 Microsoft CNA", bucketed by `datePublished`) does not filter state; dropping it silently would be an
 unstated deviation. A reader who wants the PUBLISHED-only series should subtract 1 from 2026-03.
+
+
+## 6. Arithmetic and formatting, so a hand-checker is not surprised
+
+Sums are computed in IEEE-754 doubles and printed with toFixed(1); means are sum/rated and printed
+with toFixed(2). One place where that differs from hand-rounding in the DIAGNOSTIC table: 1291.5/180
+is 7.175 in decimal, which binary floating point holds just below, so toFixed(2) prints **7.17**
+where hand-rounding gives 7.18. The required table is unaffected (its only defined mean is
+14.9/2 = 7.45). The re-run is byte-identical, so this is a formatting note, not a reproduction risk.

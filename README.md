@@ -1,20 +1,15 @@
 # listing-41 — the Microsoft CNA monthly series, and the finding that the required source is nearly empty
 
-One artifact a stranger re-runs without credentials. extract.mjs produces the table below from CVEProject/cvelistV5 at a named commit; LIMITS.md is section 4 of the condition; report.md is the working note.
-
-
+One artifact a stranger re-runs without credentials. extract.mjs produces the table below from
+CVEProject/cvelistV5 at a named commit; LIMITS.md is the condition's LIMITS section; report.md is the
+working note. table.md is the raw frozen output of extract.mjs, committed so that "the re-run
+reproduces the submitted table exactly" has a literal target to diff against.
 
 Exact command line, from an empty directory:
 
-
-
     git clone --filter=blob:none --sparse https://github.com/CVEProject/cvelistV5.git
-
     cd cvelistV5 && git sparse-checkout set cves/2025 cves/2026 && git checkout c56df66eb612fc6d8489d7b2b8a6dc8e7469bde6 && cd ..
-
     node extract.mjs --repo=./cvelistV5 > table.md
-
-
 
 # listing-41 — Microsoft CNA monthly series, 2025-09 .. 2026-08
 
@@ -53,10 +48,12 @@ Records with no CISA-ADP container at all: 1   Scored records: CVE-2026-21223 20
 
 ## DIAGNOSTIC — same records, CVSS from the CNA container (NOT the required source, not a substitute)
 
+Column names below are prefixed cna_ so that no reader can mistake this table for the required one above.
+
 Path: `containers.cna.metrics[].cvssV3_1.baseScore` (the vendor's own score). Printed only to show that the
 2-of-2373 coverage above is a property of the CISA-ADP container, not of the records.
 
-| month | n | rated | sum_base | mean_base |
+| month | n | cna_rated | cna_sum | cna_mean |
 |---|---|---|---|---|
 | 2025-09 | 94 | 94 | 682.5 | 7.26 |
 | 2025-10 | 180 | 180 | 1291.5 | 7.17 |
@@ -90,9 +87,12 @@ record. In the window 2025-09 .. 2026-08 that container carries a numeric CVSS b
 (CVE-2026-32187) has no CISA-ADP container at all.
 
 **Consequence.** The required table is a two-point series (2026-01: 5.1, 2026-04: 9.8), not a
-twelve-point one. It cannot be merged into the published Chrome/Firefox/Apple/Linux panel as a
-CVSS-weighted series, and its "mean base score" is a mean of one or two records wherever it is
-defined at all. This is a property of the CISA-ADP container, not of the records: the CNA container
+twelve-point one. What **can** be merged into the published Chrome/Firefox/Apple/Linux panel is the
+column this listing also requires and which is complete for every one of the twelve months: **n per
+month** (94, 180, 71, 65, 125, 61, 97, 181, 161, 219, 648, 471), together with the coverage finding
+itself — that the container the protocol names scores 2 of 2,373 records while the CNA container
+scores 2,372 of the same 2,373. The CVSS-weighted column is the part that cannot be merged, and its
+"mean base score" is a mean of one or two records wherever it is defined at all. This is a property of the CISA-ADP container, not of the records: the CNA container
 carries a CVSS v3.1 base score in 2,372 of the same 2,373 records. That score is the vendor's own
 and the listing forbids substituting it, so it is reported separately as a labelled diagnostic and
 is **not** the table above it.
@@ -136,3 +136,12 @@ these numbers even though the month buckets stay fixed. Separately, 1 of the 2,3
 CISA-ADP container. It is **included** because the listing's predicate ("CVE records assigned by the
 Microsoft CNA", bucketed by `datePublished`) does not filter state; dropping it silently would be an
 unstated deviation. A reader who wants the PUBLISHED-only series should subtract 1 from 2026-03.
+
+
+## 6. Arithmetic and formatting, so a hand-checker is not surprised
+
+Sums are computed in IEEE-754 doubles and printed with toFixed(1); means are sum/rated and printed
+with toFixed(2). One place where that differs from hand-rounding in the DIAGNOSTIC table: 1291.5/180
+is 7.175 in decimal, which binary floating point holds just below, so toFixed(2) prints **7.17**
+where hand-rounding gives 7.18. The required table is unaffected (its only defined mean is
+14.9/2 = 7.45). The re-run is byte-identical, so this is a formatting note, not a reproduction risk.

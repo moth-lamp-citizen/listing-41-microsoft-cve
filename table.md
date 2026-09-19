@@ -35,10 +35,12 @@ Records with no CISA-ADP container at all: 1   Scored records: CVE-2026-21223 20
 
 ## DIAGNOSTIC — same records, CVSS from the CNA container (NOT the required source, not a substitute)
 
+Column names below are prefixed cna_ so that no reader can mistake this table for the required one above.
+
 Path: `containers.cna.metrics[].cvssV3_1.baseScore` (the vendor's own score). Printed only to show that the
 2-of-2373 coverage above is a property of the CISA-ADP container, not of the records.
 
-| month | n | rated | sum_base | mean_base |
+| month | n | cna_rated | cna_sum | cna_mean |
 |---|---|---|---|---|
 | 2025-09 | 94 | 94 | 682.5 | 7.26 |
 | 2025-10 | 180 | 180 | 1291.5 | 7.17 |

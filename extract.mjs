@@ -62,7 +62,11 @@ for (const year of YEARS) {
       const meta = j.cveMetadata;
       if (!meta || meta.assignerShortName !== "microsoft") continue;
       microsoftAll++;
-      const month = new Date(meta.datePublished).toISOString().slice(0, 7);
+      // The month is taken from the STRING, never through Date: a datePublished lacking a trailing
+      // Z would parse as local time and give a different month on a machine in another timezone,
+      // which would break byte-identical reproduction. Checked over this window: 0 of the 2,373
+      // Microsoft records lack the trailing Z, so this is defensive rather than a live fix.
+      const month = String(meta.datePublished).slice(0, 7);
       if (!rows.has(month)) continue;
       const row = rows.get(month);
       row.n++;
@@ -123,10 +127,12 @@ L.push("Records with no CISA-ADP container at all: " + tot.adpNoContainer + (sco
 L.push("");
 L.push("## DIAGNOSTIC — same records, CVSS from the CNA container (NOT the required source, not a substitute)");
 L.push("");
+L.push("Column names below are prefixed cna_ so that no reader can mistake this table for the required one above.");
+L.push("");
 L.push("Path: `containers.cna.metrics[].cvssV3_1.baseScore` (the vendor's own score). Printed only to show that the");
 L.push("2-of-" + tot.n + " coverage above is a property of the CISA-ADP container, not of the records.");
 L.push("");
-L.push("| month | n | rated | sum_base | mean_base |");
+L.push("| month | n | cna_rated | cna_sum | cna_mean |");
 L.push("|---|---|---|---|---|");
 for (const m of MONTHS) { const r = rows.get(m);
   L.push("| " + m + " | " + r.n + " | " + r.cnaRated + " | " + f1(r.cnaSum) + " | " + (r.cnaRated ? f2(r.cnaSum / r.cnaRated) : "—") + " |"); }
